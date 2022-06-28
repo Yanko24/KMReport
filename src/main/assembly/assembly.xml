@@ -44,7 +44,7 @@
                 <include>auto.sh</include>
             </includes>
         </fileSet>
-        <!-- 把项目自己编译出来的jar文件，打包进tar.gz文件的根目录 -->
+        <!-- 把项目自己编译出来的jar文件，打包进tar.gz文件的jar目录 -->
         <fileSet>
             <directory>${project.basedir}/target/</directory>
             <outputDirectory>jar</outputDirectory>
