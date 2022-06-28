@@ -1,0 +1,66 @@
+<assembly>
+    <id>${project.version}</id>
+
+    <formats>
+        <!-- 打包格式 -->
+        <format>tar.gz</format>
+    </formats>
+
+    <!-- 如果为false，不会额外产生根目录，否则，在tar.gz包中会产生以pom.xml中artifactId和version命名的根目录 -->
+    <includeBaseDirectory>true</includeBaseDirectory>
+
+    <!-- 对依赖包的设置 -->
+    <dependencySets>
+        <!-- assembly中dependencySets的意思就是，将scope为runtime的依赖包，放到/lib目录下 -->
+        <dependencySet>
+            <!-- 定义了是否解压依赖包，如果为true，会解压出依赖包中的class文件，反之，则不进行解压 -->
+            <unpack>false</unpack>
+            <!-- 限定了对哪些依赖包进行操作；（依赖包scope的值是在pom.xml中定义的）-->
+            <scope>runtime</scope>
+            <!-- 依赖包在tar.gz包中相对于根目录的路径 -->
+            <outputDirectory>lib</outputDirectory>
+            <!-- 依赖包中是否包含当前工程 -->
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+    </dependencySets>
+
+    <!-- 指定哪些文件包含在打出的tar.gz包中 -->
+    <fileSets>
+        <!-- 打包项目中的配置文件到打包目录/config下 -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/resources/</directory>
+            <outputDirectory>config</outputDirectory>
+            <fileMode>0644</fileMode>
+            <includes>
+                <include>*.properties</include>
+            </includes>
+        </fileSet>
+        <!-- 把项目的脚本文件目录（ src/main/bin ）中的启动脚本文件，打包进tar.gz文件的bin目录 -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/bin/</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+            <includes>
+                <include>auto.sh</include>
+            </includes>
+        </fileSet>
+        <!-- 把项目自己编译出来的jar文件，打包进tar.gz文件的根目录 -->
+        <fileSet>
+            <directory>${project.basedir}/target/</directory>
+            <outputDirectory>jar</outputDirectory>
+            <fileMode>0644</fileMode>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+        <!-- 创建空的log目录 -->
+        <fileSet>
+            <directory>${project.basedir}/src/main/</directory>
+            <outputDirectory>log</outputDirectory>
+            <fileMode>0644</fileMode>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>
