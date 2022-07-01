@@ -1,0 +1,22 @@
+server:
+  port: 8888
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/kmreport?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: xiaoer
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: kmreport
+  banner:
+    location: logo/logo.txt
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  type-aliases-package: com.kmreport.model
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
