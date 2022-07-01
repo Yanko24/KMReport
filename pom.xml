@@ -13,6 +13,7 @@
         <module>kmreport-metrics</module>
         <module>kmreport-dist</module>
         <module>kmreport-admin</module>
+        <module>kmreport-web</module>
     </modules>
 
     <properties>
