@@ -1,6 +1,6 @@
-package com.yankee.kmreport.model.metrics;
+package com.kmreport.model.metrics;
 
-import com.yankee.kmreport.model.PartitionValueMetric;
+import com.kmreport.model.PartitionValueMetric;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;

@@ -1,6 +1,6 @@
-package com.yankee.kmreport.model.metrics;
+package com.kmreport.model.metrics;
 
-import com.yankee.kmreport.model.MeterMetric;
+import com.kmreport.model.MeterMetric;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;

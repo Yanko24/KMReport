@@ -1,4 +1,4 @@
-package com.yankee.kmreport.util;
+package com.kmreport.util;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

@@ -1,8 +1,8 @@
-package com.yankee.kmreport.jmx;
+package com.kmreport.jmx;
 
-import com.yankee.kmreport.model.BrokerIdentity;
-import com.yankee.kmreport.model.metrics.KafkaServerMetrics;
-import com.yankee.kmreport.model.KafkaTopicMetrics;
+import com.kmreport.model.BrokerIdentity;
+import com.kmreport.model.metrics.KafkaServerMetrics;
+import com.kmreport.model.KafkaTopicMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

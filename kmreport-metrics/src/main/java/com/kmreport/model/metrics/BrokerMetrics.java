@@ -1,7 +1,7 @@
-package com.yankee.kmreport.model.metrics;
+package com.kmreport.model.metrics;
 
-import com.yankee.kmreport.model.MeterMetric;
-import com.yankee.kmreport.model.PartitionValueMetric;
+import com.kmreport.model.MeterMetric;
+import com.kmreport.model.PartitionValueMetric;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

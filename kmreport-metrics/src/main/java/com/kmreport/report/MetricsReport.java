@@ -1,8 +1,8 @@
-package com.yankee.kmreport.report;
+package com.kmreport.report;
 
 import cn.hutool.core.util.RuntimeUtil;
-import com.yankee.kmreport.model.KafkaMetricsInfo;
-import com.yankee.kmreport.util.PropertiesUtil;
+import com.kmreport.model.KafkaMetricsInfo;
+import com.kmreport.util.PropertiesUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

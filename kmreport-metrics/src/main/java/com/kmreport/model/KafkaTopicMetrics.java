@@ -1,6 +1,6 @@
-package com.yankee.kmreport.model;
+package com.kmreport.model;
 
-import com.yankee.kmreport.model.metrics.KafkaServerMetrics;
+import com.kmreport.model.metrics.KafkaServerMetrics;
 
 public class KafkaTopicMetrics {
     /**

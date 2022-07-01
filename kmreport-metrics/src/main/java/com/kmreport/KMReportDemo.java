@@ -1,13 +1,13 @@
-package com.yankee.kmreport;
+package com.kmreport;
 
 import cn.hutool.setting.dialect.Props;
-import com.yankee.kmreport.jmx.JmxConnectionForCluster;
-import com.yankee.kmreport.jmx.KafkaMBeanServerConnection;
-import com.yankee.kmreport.model.BrokerIdentity;
-import com.yankee.kmreport.model.KafkaMetricsInfo;
-import com.yankee.kmreport.model.metrics.BrokerMetrics;
-import com.yankee.kmreport.model.metrics.KafkaMetrics;
-import com.yankee.kmreport.report.MetricsReport;
+import com.kmreport.jmx.JmxConnectionForCluster;
+import com.kmreport.jmx.KafkaMBeanServerConnection;
+import com.kmreport.model.BrokerIdentity;
+import com.kmreport.model.KafkaMetricsInfo;
+import com.kmreport.model.metrics.BrokerMetrics;
+import com.kmreport.model.metrics.KafkaMetrics;
+import com.kmreport.report.MetricsReport;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.common.Node;
 import org.slf4j.Logger;
@@ -20,8 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class KMReport {
-    private static final Logger log = LoggerFactory.getLogger(KMReport.class);
+public class KMReportDemo {
+    private static final Logger log = LoggerFactory.getLogger(KMReportDemo.class);
 
     private static final String fileName = "jmx.properties";
 
@@ -96,6 +96,7 @@ public class KMReport {
 
                         BrokerMetrics brokerMetrics = KafkaMetrics.getBrokerMetrics(connections, topic);
                         log.info("Broker的监控指标为：{}", brokerMetrics);
+                        System.out.println(brokerMetrics);
 
                         // 构造kafkaMetricsInfo
                         Map<String, KafkaMetricsInfo> currentKafkaMetricsInfo = new HashMap<>();
