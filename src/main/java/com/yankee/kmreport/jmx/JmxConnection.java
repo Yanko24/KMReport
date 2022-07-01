@@ -1,6 +1,8 @@
 package com.yankee.kmreport.jmx;
 
-import com.yankee.kmreport.bean.KafkaMetrics;
+import com.yankee.kmreport.model.BrokerIdentity;
+import com.yankee.kmreport.model.metrics.KafkaServerMetrics;
+import com.yankee.kmreport.model.KafkaTopicMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,26 +16,24 @@ import java.util.Map;
 import java.util.Set;
 
 public class JmxConnection {
-    private static final Logger LOG = LoggerFactory.getLogger(JmxConnection.class);
-    private MBeanServerConnection conn;
+    private static final Logger log = LoggerFactory.getLogger(JmxConnection.class);
+    private MBeanServerConnection connection;
     private String jmxURL;
-    private String jmxBroker;
-    private boolean newKafkaVersion = false;
+    private BrokerIdentity brokerIdentity;
 
-    public JmxConnection(String jmxBroker, Boolean newKafkaVersion) {
-        this.jmxBroker = jmxBroker;
-        this.newKafkaVersion = newKafkaVersion;
+    public JmxConnection(BrokerIdentity brokerIdentity) {
+        this.brokerIdentity = brokerIdentity;
     }
 
     public boolean init() {
-        jmxURL = "service:jmx:rmi:///jndi/rmi://" + jmxBroker + "/jmxrmi";
-        LOG.info("init jmx, jmxUrl: {}, and begin to connect it", jmxURL);
+        jmxURL = "service:jmx:rmi:///jndi/rmi://" + brokerIdentity.getHost() + ":" + brokerIdentity.getJmxPort() + "/jmxrmi";
+        log.info("init jmx, jmxUrl: {}, and begin to connect it", jmxURL);
         try {
             JMXServiceURL serviceURL = new JMXServiceURL(jmxURL);
             JMXConnector connector = JMXConnectorFactory.connect(serviceURL, null);
-            conn = connector.getMBeanServerConnection();
-            if (conn == null) {
-                LOG.error("get connection return null!");
+            connection = connector.getMBeanServerConnection();
+            if (connection == null) {
+                log.error("get connection return null!");
                 return false;
             }
         } catch (IOException e) {
@@ -41,18 +41,6 @@ public class JmxConnection {
             return false;
         }
         return true;
-    }
-
-    /**
-     * 获取其他属性
-     *
-     * @param kafkaMetrics jmxMetrics枚举类
-     * @return object
-     */
-    private Object getAttribute(KafkaMetrics kafkaMetrics) {
-        String objName = kafkaMetrics.getObjName();
-        String objAttribute = kafkaMetrics.getObjAttribute();
-        return getAttribute(objName, objAttribute);
     }
 
     /**
@@ -81,12 +69,12 @@ public class JmxConnection {
      * @return object
      */
     private Object getAttribute(ObjectName objName, String objAttribute) {
-        if (conn == null) {
-            LOG.error("jmx connection is null");
+        if (connection == null) {
+            log.error("jmx connection is null");
             return null;
         }
         try {
-            return conn.getAttribute(objName, objAttribute);
+            return connection.getAttribute(objName, objAttribute);
         } catch (MBeanException | AttributeNotFoundException | InstanceNotFoundException | ReflectionException |
                  IOException e) {
             e.printStackTrace();
@@ -94,18 +82,7 @@ public class JmxConnection {
         }
     }
 
-    /**
-     * 获取kafka的partition总数
-     *
-     * @return partition总数
-     */
-    public Integer getPartitionCount() {
-        Object attribute = getAttribute(KafkaMetrics.PARTITION_COUNT);
-        if (attribute != null) {
-            return (Integer) attribute;
-        }
-        return 0;
-    }
+    // 获取kafka节点的metrics
 
     /**
      * 获取kafka节点消息入站的byte大小
@@ -113,24 +90,9 @@ public class JmxConnection {
      * @return 入站消息byte大小
      */
     public Long getByteInPerSec() {
-        Object attribute = getAttribute(KafkaMetrics.BYTES_IN_PER_SEC);
+        Object attribute = getAttribute(KafkaServerMetrics.BYTES_IN_PER_SEC, "Count");
         if (attribute != null) {
-            return (Long) attribute;
-        }
-        return 0L;
-    }
-
-    /**
-     * 获取kafka节点某个topic消息入站的byte大小
-     *
-     * @param topic topic名称
-     * @return 入站消息byte大小
-     */
-    public Long getByteInPerSec(String topic) {
-        Object attribute = getAttribute(KafkaMetrics.BYTES_IN_PER_SEC.getObjName() + ",topic=" + topic,
-                KafkaMetrics.BYTES_IN_PER_SEC.getObjAttribute());
-        if (attribute != null) {
-            return (Long) attribute;
+            return Long.parseLong(attribute.toString());
         }
         return 0L;
     }
@@ -141,9 +103,51 @@ public class JmxConnection {
      * @return 出站消息byte大小
      */
     public Long getByteOutPerSec() {
-        Object attribute = getAttribute(KafkaMetrics.BYTES_OUT_PER_SEC);
+        Object attribute = getAttribute(KafkaServerMetrics.BYTES_OUT_PER_SEC, "Count");
         if (attribute != null) {
-            return (Long) attribute;
+            return Long.parseLong(attribute.toString());
+        }
+        return 0L;
+    }
+
+    /**
+     * 获取kafka节点的消息入站总数
+     *
+     * @return 消息数量
+     */
+    public Long getMessagesInCountPerSec() {
+        Object attribute = getAttribute(KafkaServerMetrics.MESSAGES_IN_PER_SEC, "Count");
+        if (attribute != null) {
+            return Long.parseLong(attribute.toString());
+        }
+        return 0L;
+    }
+
+    /**
+     * 获取kafka节点的tps
+     *
+     * @return tps
+     */
+    public Double getMessagesInTpsPerSec() {
+        Object attribute = getAttribute(KafkaServerMetrics.MESSAGES_IN_PER_SEC, "OneMinuteRate");
+        if (attribute != null) {
+            return Double.parseDouble(attribute.toString());
+        }
+        return 0D;
+    }
+
+    // 获取kafka中某个topic的metrics
+
+    /**
+     * 获取kafka节点某个topic消息入站的byte大小
+     *
+     * @param topic topic名称
+     * @return 入站消息byte大小
+     */
+    public Long getByteInPerSec(String topic) {
+        Object attribute = getAttribute(KafkaTopicMetrics.addTopic(KafkaTopicMetrics.BYTES_IN_PER_SEC, topic), "Count");
+        if (attribute != null) {
+            return Long.parseLong(attribute.toString());
         }
         return 0L;
     }
@@ -155,23 +159,10 @@ public class JmxConnection {
      * @return 出站消息byte大小
      */
     public Long getByteOutPerSec(String topic) {
-        Object attribute = getAttribute(KafkaMetrics.BYTES_OUT_PER_SEC.getObjName() + ",topic=" + topic,
-                KafkaMetrics.BYTES_OUT_PER_SEC.getObjAttribute());
+        Object attribute = getAttribute(KafkaTopicMetrics.addTopic(KafkaTopicMetrics.BYTES_OUT_PER_SEC, topic),
+                "Count");
         if (attribute != null) {
-            return (Long) attribute;
-        }
-        return 0L;
-    }
-
-    /**
-     * 获取kafka节点的消息入站总数
-     *
-     * @return 消息数量
-     */
-    public Long getMessagesInCountPerSec() {
-        Object attribute = getAttribute(KafkaMetrics.MESSAGES_IN_COUNT_PER_SEC);
-        if (attribute != null) {
-            return (Long) attribute;
+            return Long.parseLong(attribute.toString());
         }
         return 0L;
     }
@@ -183,25 +174,12 @@ public class JmxConnection {
      * @return 消息数量
      */
     public Long getMessagesInCountPerSec(String topic) {
-        Object attribute = getAttribute(KafkaMetrics.MESSAGES_IN_COUNT_PER_SEC.getObjName() + ",topic=" + topic,
-                KafkaMetrics.MESSAGES_IN_COUNT_PER_SEC.getObjAttribute());
+        Object attribute = getAttribute(KafkaTopicMetrics.addTopic(KafkaTopicMetrics.MESSAGES_IN_PER_SEC, topic),
+                "Count");
         if (attribute != null) {
-            return (Long) attribute;
+            return Long.parseLong(attribute.toString());
         }
         return 0L;
-    }
-
-    /**
-     * 获取kafka节点的tps
-     *
-     * @return tps
-     */
-    public Double getMessagesInTpsPerSec() {
-        Object attribute = getAttribute(KafkaMetrics.MESSAGES_IN_TPS_PER_SEC);
-        if (attribute != null) {
-            return (Double) attribute;
-        }
-        return 0D;
     }
 
     /**
@@ -211,10 +189,10 @@ public class JmxConnection {
      * @return tps
      */
     public Double getMessagesInTpsPerSec(String topic) {
-        Object attribute = getAttribute(KafkaMetrics.MESSAGES_IN_TPS_PER_SEC.getObjName() + ",topic=" + topic,
-                KafkaMetrics.MESSAGES_IN_TPS_PER_SEC.getObjAttribute());
+        Object attribute = getAttribute(KafkaTopicMetrics.addTopic(KafkaTopicMetrics.MESSAGES_IN_PER_SEC, topic),
+                "OneMinuteRate");
         if (attribute != null) {
-            return (Double) attribute;
+            return Double.parseDouble(attribute.toString());
         }
         return 0D;
     }
@@ -225,52 +203,29 @@ public class JmxConnection {
      * @param topic topic名称
      * @return map
      */
-    public Map<Integer, Long> getTopicEndOffset(String topic) {
-        Set<ObjectName> objs = getEndOffsetObjects(topic);
-        if (objs == null) {
-            return null;
+    public Map<Integer, Long> getLogEndOffset(String topic) {
+        ObjectName objectName = null;
+        Set<ObjectName> objectNames = null;
+        try {
+            objectName = new ObjectName(KafkaTopicMetrics.LOG_END_OF_OFFSET);
+            objectNames = connection.queryNames(objectName, null);
+        } catch (MalformedObjectNameException | IOException e) {
+            e.printStackTrace();
         }
         Map<Integer, Long> map = new HashMap<>();
-        for (ObjectName objName : objs) {
-            int partId = getParId(objName);
-            Object val = getAttribute(objName, "Value");
-            if (val != null) {
-                map.put(partId, (Long) val);
+        assert objectNames != null;
+        for (ObjectName objName : objectNames) {
+            Integer partition = Integer.parseInt(objName.getKeyProperty("partition"));
+            Object attribute = getAttribute(objName, "Value");
+            if (attribute != null) {
+                map.put(partition, Long.parseLong(attribute.toString()));
             }
         }
         return map;
     }
 
     private int getParId(ObjectName objName) {
-        if (newKafkaVersion) {
-            String s = objName.getKeyProperty("partition");
-            return Integer.parseInt(s);
-        } else {
-            String s = objName.getKeyProperty("name");
-            int to = s.lastIndexOf("-LogEndOffset");
-            String s1 = s.substring(0, to);
-            int from = s1.lastIndexOf("-") + 1;
-            String ss = s.substring(from, to);
-            return Integer.parseInt(ss);
-        }
-    }
-
-    private Set<ObjectName> getEndOffsetObjects(String topicName) {
-        String objectName;
-        if (newKafkaVersion) {
-            objectName = "kafka.log:type=Log,name=LogEndOffset,topic=" + topicName + ",partition=*";
-        } else {
-            objectName = "\"kafka.log\":type=\"Log\",name=\"" + topicName + "-*-LogEndOffset\"";
-        }
-        ObjectName objName = null;
-        Set<ObjectName> objectNames = null;
-        try {
-            objName = new ObjectName(objectName);
-            objectNames = conn.queryNames(objName, null);
-        } catch (MalformedObjectNameException | IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return objectNames;
+        String s = objName.getKeyProperty("partition");
+        return Integer.parseInt(s);
     }
 }

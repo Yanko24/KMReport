@@ -1,4 +1,4 @@
-package com.yankee.kmreport.bean;
+package com.yankee.kmreport.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

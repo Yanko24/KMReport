@@ -1,7 +1,7 @@
 package com.yankee.kmreport.report;
 
 import cn.hutool.core.util.RuntimeUtil;
-import com.yankee.kmreport.bean.KafkaMetricsInfo;
+import com.yankee.kmreport.model.KafkaMetricsInfo;
 import com.yankee.kmreport.util.PropertiesUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -56,10 +56,10 @@ public class MetricsReport implements Runnable {
             }
 
             // 判断是否和上一次相等
-            boolean change = preKafkaMetrics.getMetricsValue().equals(currentkafkaMetrics.getMetricsValue());
-            if (change) {
-                currentkafkaMetrics.setCount(++metricsCount);
-            }
+            // boolean change = preKafkaMetrics.getMetricsValue().equals(currentkafkaMetrics.getMetricsValue());
+            // if (change) {
+            //     currentkafkaMetrics.setCount(++metricsCount);
+            // }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.yankee.kmreport.jmx;
 
+import com.yankee.kmreport.model.BrokerIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,41 +10,26 @@ import java.util.List;
 import java.util.Map;
 
 public class JmxConnectionForCluster {
-    private static final Logger LOG = LoggerFactory.getLogger(JmxConnectionForCluster.class);
-    private static final List<JmxConnection> conns = new ArrayList<>();
+    private static final Logger log = LoggerFactory.getLogger(JmxConnectionForCluster.class);
+    private static final List<JmxConnection> connections = new ArrayList<>();
 
     /**
      * 初始化JmxConnection连接
      *
-     * @param jmxBrokers      brokers
-     * @param newKafkaVersion 是否是kafka新版本
+     * @param brokerIdentities      brokers
      */
-    public static Boolean init(List<String> jmxBrokers, Boolean newKafkaVersion) {
-        for (String jmxBroker : jmxBrokers) {
-            LOG.info("init jmxConnection [{}]", jmxBroker);
-            JmxConnection conn = new JmxConnection(jmxBroker, newKafkaVersion);
-            boolean init = conn.init();
+    public static Boolean init(List<BrokerIdentity> brokerIdentities) {
+        for (BrokerIdentity brokerIdentity : brokerIdentities) {
+            log.info("init jmxConnection [{}]", brokerIdentity);
+            JmxConnection connection = new JmxConnection(brokerIdentity);
+            boolean init = connection.init();
             if (!init) {
-                LOG.error("init jmxConnection error");
+                log.error("init jmxConnection error");
                 return false;
             }
-            conns.add(conn);
+            connections.add(connection);
         }
         return true;
-    }
-
-    /**
-     * 获取kafka集群的partition总数
-     *
-     * @return kafka集群的patition总数
-     */
-    public static Integer getPartitionCount() {
-        Integer value = 0;
-        for (JmxConnection conn : conns) {
-            Integer temp = conn.getPartitionCount();
-            value += temp;
-        }
-        return value;
     }
 
     /**
@@ -54,8 +40,8 @@ public class JmxConnectionForCluster {
      */
     public static Long getByteInPerSec(String topic) {
         Long value = 0L;
-        for (JmxConnection conn : conns) {
-            Long temp = conn.getByteInPerSec(topic);
+        for (JmxConnection connection : connections) {
+            Long temp = connection.getByteInPerSec(topic);
             value += temp;
         }
         return value;
@@ -69,8 +55,8 @@ public class JmxConnectionForCluster {
      */
     public static Long getByteOutPerSec(String topic) {
         Long value = 0L;
-        for (JmxConnection conn : conns) {
-            Long temp = conn.getByteOutPerSec(topic);
+        for (JmxConnection connection : connections) {
+            Long temp = connection.getByteOutPerSec(topic);
             value += temp;
         }
         return value;
@@ -84,8 +70,8 @@ public class JmxConnectionForCluster {
      */
     public static Long getMessagesInCountPerSec(String topic) {
         Long value = 0L;
-        for (JmxConnection conn : conns) {
-            Long temp = conn.getMessagesInCountPerSec(topic);
+        for (JmxConnection connection : connections) {
+            Long temp = connection.getMessagesInCountPerSec(topic);
             value += temp;
         }
         return value;
@@ -99,24 +85,30 @@ public class JmxConnectionForCluster {
      */
     public static Double getMessagesInTpsPerSec(String topic) {
         Double value = 0D;
-        for (JmxConnection conn : conns) {
-            Double temp = conn.getMessagesInTpsPerSec(topic);
+        for (JmxConnection connection : connections) {
+            Double temp = connection.getMessagesInTpsPerSec(topic);
             value += temp;
         }
         return value;
     }
 
-    public static Map<Integer, Long> getEndOffset(String topicName) {
+    /**
+     * 获取kakfa集群下topic的的每个partition所对应的logSize(即offset)，集群中的这个值取kafka节点中的最大值
+     *
+     * @param topic topic名称
+     * @return map
+     */
+    public static Map<Integer, Long> getLogEndOffset(String topic) {
         Map<Integer, Long> map = new HashMap<>();
-        for (JmxConnection conn : conns) {
-            Map<Integer, Long> tmp = conn.getTopicEndOffset(topicName);
-            if (tmp == null) {
-                LOG.warn("get topic endoffset return null, topic {}", topicName);
+        for (JmxConnection connection : connections) {
+            Map<Integer, Long> temp = connection.getLogEndOffset(topic);
+            if (temp == null) {
+                log.warn("get topic logendoffset return null, topic {}", topic);
                 continue;
             }
-            for (Integer parId : tmp.keySet()) {//change if bigger
-                if (!map.containsKey(parId) || (map.containsKey(parId) && (tmp.get(parId) > map.get(parId)))) {
-                    map.put(parId, tmp.get(parId));
+            for (Integer partition : temp.keySet()) {
+                if (!map.containsKey(partition) || (map.containsKey(partition) && (temp.get(partition) > map.get(partition)))) {
+                    map.put(partition, temp.get(partition));
                 }
             }
         }
