@@ -13,6 +13,7 @@
         <module>kmreport-admin</module>
         <module>kmreport-web</module>
         <module>kmreport-assembly</module>
+        <module>kmreport-tools</module>
     </modules>
 
     <properties>
