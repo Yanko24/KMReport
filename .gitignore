@@ -40,3 +40,4 @@ build/
 
 ### Project
 /log/
+/kmreport-admin/src/main/resources/static/

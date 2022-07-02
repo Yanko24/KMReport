@@ -9,11 +9,10 @@
     <packaging>pom</packaging>
     <version>0.2-SNAPSHOT</version>
     <modules>
-        <module>kmreport-assembly</module>
         <module>kmreport-metrics</module>
-        <module>kmreport-dist</module>
         <module>kmreport-admin</module>
         <module>kmreport-web</module>
+        <module>kmreport-assembly</module>
     </modules>
 
     <properties>
@@ -34,6 +33,7 @@
         <slf4j.version>1.7.32</slf4j.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
+        <maven.resource.version>3.2.0</maven.resource.version>
     </properties>
 
     <dependencyManagement>
@@ -124,8 +124,14 @@
             </dependency>
 
             <dependency>
-                <groupId>com.yankee</groupId>
+                <groupId>com.kmreport</groupId>
                 <artifactId>kmreport-metrics</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.kmreport</groupId>
+                <artifactId>kmreport-admin</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
@@ -182,28 +188,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <!-- 绑定到package生命周期阶段上 -->
-                        <phase>package</phase>
-                        <goals>
-                            <!-- 绑定到package生命周期阶段上 -->
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>${project.artifactId}-release-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>kmreport-assembly/src/main/assembly/assembly.xml</descriptor>
-                            </descriptors>
-                            <outputDirectory>${project.basedir}/build/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

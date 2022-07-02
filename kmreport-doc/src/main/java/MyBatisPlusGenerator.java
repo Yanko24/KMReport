@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.generator.fill.Property;
 
 import java.util.Collections;
 
-public class Main {
+public class MyBatisPlusGenerator {
     public static void main(String[] args) {
         FastAutoGenerator.create("jdbc:mysql://127.0.0.1:3306/kmreport", "root", "xiaoer")
                 .globalConfig(builder -> {

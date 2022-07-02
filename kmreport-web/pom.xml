@@ -25,6 +25,10 @@
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
+                        <configuration>
+                            <nodeVersion>v14.17.0</nodeVersion>
+                            <npmVersion>7.19.0</npmVersion>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>npm install</id>
@@ -47,8 +51,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <nodeVersion>v14.17.0</nodeVersion>
-                    <npmVersion>7.19.0</npmVersion>
+                    <workingDirectory>web-dashboard</workingDirectory>
                     <!-- 国内node下载加速 -->
                     <!--<nodeDownloadRoot>https://mirrors.huaweicloud.com/nodejs/</nodeDownloadRoot>-->
                 </configuration>

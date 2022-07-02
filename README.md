@@ -8,4 +8,4 @@
 export JMX_PORT="9999"
 ```
 
-![](doc/image/开启jmx.jpg)
+![](docs/image/开启jmx.jpg)
